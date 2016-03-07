@@ -232,7 +232,7 @@ consult(File) ->
                 {ok, [Document|_]} ->
                     {ok, parserl(Document)};
                 {error, Err} ->
-                    Msg1 = "Cannot load " ++ File ++ ": ",
+                    Msg1 = "Error while loading the configuration file " ++ File ++ ": ",
                     Msg2 = fast_yaml:format_error(Err),
                     {error, Msg1 ++ Msg2}
             end;
@@ -563,8 +563,10 @@ replace_term(Key, Macros) when is_atom(Key) ->
     case is_all_uppercase(Key) of
 	true ->
 	    case proplists:get_value(Key, Macros) of
-		undefined -> exit({undefined_macro, Key});
-		Value -> Value
+		undefined -> 
+			?ERROR_MSG("Error while loading the configuration file. The macro '~s' is undefined~n", [Key]),
+			exit({undefined_macro, Key});
+			Value -> Value
 	    end;
 	false ->
 	    Key
